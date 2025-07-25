@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圣经问答系统</title>
+    <style>
+        :root {
+            --pri: #2c3e50;
+            --sec: #34495e;
+            --acc: #3498db;
+            --lit: #ecf0f1;
+            --drk: #2c3e50;
+            --cor: #2ecc71;
+            --wro: #e74c3c;
+            --hil: #2980b9;
+            --gld: #f1c40f;
+        }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: var(--lit);
+            color: var(--drk);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .title {
+            color: var(--pri);
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--sec);
+            margin-bottom: 30px;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(52, 152, 219, 0.1);
+        }
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-lbl {
+            font-size: 0.9rem;
+            color: var(--sec);
+            margin-bottom: 5px;
+        }
+        .stat-val {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        .exp {
+            color: var(--acc);
+        }
+        .coin {
+            color: var(--gld);
+        }
+        .btn {
+            padding: 12px 24px;
+            background: var(--acc);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin: 10px;
+            min-width: 180px;
+        }
+        .btn:hover {
+            background: var(--hil);
+            transform: translateY(-2px);
+        }
+        .btn-start {
+            background: var(--cor);
+        }
+        .btn-start:hover {
+            background: #27ae60;
+        }
+        .hidden {
+            display: none;
+        }
+        .game-head {
+            margin-bottom: 30px;
+        }
+        .q-cont {
+            margin-bottom: 30px;
+        }
+        .q-txt {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .verse {
+            font-style: italic;
+            color: var(--sec);
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+        .opts {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .opt {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid var(--acc);
+            border-radius: 8px;
+            color: var(--drk);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .opt:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+        .opt.sel {
+            background: var(--acc);
+            color: white;
+        }
+        .opt-let {
+            font-weight: bold;
+            margin-right: 10px;
+            color: var(--acc);
+        }
+        .opt.sel .opt-let {
+            color: white;
+        }
+        .opt.cor {
+            background: var(--cor);
+            border-color: var(--cor);
+            color: white;
+        }
+        .opt.wro {
+            background: var(--wro);
+            border-color: var(--wro);
+            color: white;
+        }
+        .conf-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: var(--cor);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        .conf-btn:hover {
+            background: #27ae60;
+        }
+        .conf-btn:dis {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .res-scr {
+            text-align: center;
+            padding: 20px;
+        }
+        .res-tit {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .won .res-tit {
+            color: var(--cor);
+        }
+        .lost .res-tit {
+            color: var(--wro);
+        }
+        .prize {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            color: var(--gld);
+        }
+        .explain {
+            background: rgba(236, 240, 241, 0.5);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .explain-tit {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--pri);
+        }
+        .review {
+            margin-top: 30px;
+            text-align: left;
+        }
+        .rev-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(236, 240, 241, 0.5);
+            border-radius: 8px;
+        }
+        .rev-q {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .rev-a {
+            color: var(--cor);
+            margin-top: 5px;
+        }
+        .rev-w {
+            color: var(--wro);
+            margin-top: 5px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .title {
+                font-size: 2rem;
+            }
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-cont {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .modal-tit {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--pri);
+            font-weight: 600;
+        }
+        .modal-txt {
+            text-align: left;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+        .modal-btn {
+            padding: 10px 20px;
+            background: var(--acc);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .loading {
+            font-size: 1.2rem;
+            color: var(--sec);
+            margin: 20px 0;
+        }
+        .prog-cont {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .prog-bar {
+            height: 10px;
+            background-color: var(--acc);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="main">
+        <h1 class="title">圣经问答系统</h1>
+        <p class="subtitle">在游戏中学习圣经真理</p>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-lbl">学习积分</div>
+                <div class="stat-val exp" id="exp">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-lbl">智慧金币</div>
+                <div class="stat-val coin" id="coin">100</div>
+            </div>
+        </div>
+        <button class="btn btn-start" id="start">开始学习</button>
+        <button class="btn" id="rules">学习指南</button>
+    </div>
+
+    <div class="container hidden" id="game">
+        <div class="game-head">
+            <h1 class="title">圣经问答</h1>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-lbl">当前奖励</div>
+                    <div class="stat-val coin" id="prize">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-lbl">进度</div>
+                    <div class="stat-val" id="prog-txt">1/10</div>
+                </div>
+            </div>
+            <div class="prog-cont">
+                <div class="prog-bar" id="prog-bar" style="width: 10%"></div>
+            </div>
+        </div>
+        <div class="q-cont">
+            <div class="q-txt" id="q"></div>
+            <div class="verse" id="ref"></div>
+            <div class="opts" id="opts"></div>
+        </div>
+        <button class="conf-btn" id="conf" disabled>确认答案</button>
+    </div>
+
+    <div class="container hidden" id="res">
+        <div class="res-scr">
+            <h2 class="res-tit" id="res-tit"></h2>
+            <p class="prize" id="prize-txt"></p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-lbl">获得积分</div>
+                    <div class="stat-val exp" id="exp-earn">+0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-lbl">获得金币</div>
+                    <div class="stat-val coin" id="coin-earn">+0</div>
+                </div>
+            </div>
+            
+            <div class="review" id="rev-sec">
+                <h3>错题回顾</h3>
+                <div id="rev-items"></div>
+            </div>
+            
+            <button class="btn btn-start" id="restart">继续学习</button>
+            <button class="btn" id="back">返回主菜单</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="load">
+        <h1 class="title">圣经问答系统</h1>
+        <p class="loading">正在加载题目，请稍候...</p>
+    </div>
+
+    <script>
+    const prizes = [100, 200, 300, 500, 800, 1000, 1500, 2000, 2500, 3000];
+    let qs = [];
+    let gameQs = [];
+    let currQ = 0;
+    let selOpts = [];
+    let exp = 0;
+    let coins = 100;
+    let wrongs = [];
+
+    // DOM elements
+    const main = document.getElementById('main');
+    const game = document.getElementById('game');
+    const res = document.getElementById('res');
+    const load = document.getElementById('load');
+    const startBtn = document.getElementById('start');
+    const rulesBtn = document.getElementById('rules');
+    const qText = document.getElementById('q');
+    const verse = document.getElementById('ref');
+    const optsCont = document.getElementById('opts');
+    const confBtn = document.getElementById('conf');
+    const prizeVal = document.getElementById('prize');
+    const expVal = document.getElementById('exp');
+    const coinVal = document.getElementById('coin');
+    const expEarn = document.getElementById('exp-earn');
+    const coinEarn = document.getElementById('coin-earn');
+    const resTitle = document.getElementById('res-tit');
+    const prizeTxt = document.getElementById('prize-txt');
+    const restartBtn = document.getElementById('restart');
+    const backBtn = document.getElementById('back');
+    const progTxt = document.getElementById('prog-txt');
+    const progBar = document.getElementById('prog-bar');
+    const revSec = document.getElementById('rev-sec');
+    const revItems = document.getElementById('rev-items');
+
+    async function getQs() {
+        try {
+            load.classList.remove('hidden');
+            main.classList.add('hidden');
+
+            const res = await fetch('quiz.json');
+            if (!res.ok) throw new Error('网络响应不正常');
+            qs = (await res.json()).questions;
+            
+            loadQs();
+            
+            load.classList.add('hidden');
+            main.classList.remove('hidden');
+        } catch (e) {
+            console.error('加载题目失败:', e);
+            load.innerHTML = `
+                <h1 class="title">圣经问答系统</h1>
+                <p class="loading" style="color: var(--wro);">加载题目失败，请刷新重试</p>
+                <button class="btn" onclick="window.location.reload()">重新加载</button>
+            `;
+        }
+    }
+
+    function loadQs() {
+        gameQs = [...qs].sort(() => 0.5 - Math.random()).slice(0, 10);
+    }
+
+    function init() {
+        currQ = 0;
+        selOpts = [];
+        wrongs = [];
+        loadQs();
+        updateStats();
+        loadQ();
+    }
+
+    function loadQ() {
+        const q = gameQs[currQ];
+        qText.textContent = q.question;
+        verse.textContent = q.verse;
+        optsCont.innerHTML = '';
+
+        q.choices.forEach((opt, i) => {
+            const optEl = document.createElement('button');
+            optEl.className = 'opt';
+            optEl.innerHTML = `
+                <span class="opt-let">${String.fromCharCode(65 + i)}</span>
+                <span>${opt}</span>
+            `;
+            optEl.addEventListener('click', () => selOpt(i));
+            optsCont.appendChild(optEl);
+        });
+
+        confBtn.disabled = true;
+        selOpts = [];
+        prizeVal.textContent = prizes[currQ];
+        progTxt.textContent = `${currQ + 1}/${gameQs.length}`;
+        progBar.style.width = `${((currQ + 1) / gameQs.length) * 100}%`;
+    }
+
+    function selOpt(i) {
+        const q = gameQs[currQ];
+        const opts = document.querySelectorAll('.opt');
+
+        const idx = selOpts.indexOf(i);
+        if (idx === -1) {
+            selOpts.push(i);
+            opts[i].classList.add('sel');
+        } else {
+            selOpts.splice(idx, 1);
+            opts[i].classList.remove('sel');
+        }
+
+        confBtn.disabled = selOpts.length === 0;
+
+        if (q.answer.length === 1 && selOpts.length > 1) {
+            selOpts = [i];
+            opts.forEach(o => o.classList.remove('sel'));
+            opts[i].classList.add('sel');
+        }
+    }
+
+    function confirm() {
+        if (selOpts.length === 0) return;
+
+        const q = gameQs[currQ];
+        const isCor = JSON.stringify(selOpts.sort()) === JSON.stringify(q.answer.sort());
+        
+        const opts = document.querySelectorAll('.opt');
+        opts.forEach((o, i) => {
+            if (q.answer.includes(i)) o.classList.add('cor');
+            else if (selOpts.includes(i)) o.classList.add('wro');
+            o.style.pointerEvents = 'none';
+        });
+        
+        confBtn.disabled = true;
+        
+        setTimeout(() => {
+            const lvl = q.level || 1;
+            
+            if (isCor) {
+                exp += lvl * 10;
+                coins += lvl * 5;
+            } else {
+                wrongs.push({q, sel: [...selOpts]});
+            }
+            
+            updateStats();
+            
+            if (currQ === gameQs.length - 1) showRes();
+            else {
+                currQ++;
+                loadQ();
+            }
+        }, 1000);
+    }
+
+    function updateStats() {
+        expVal.textContent = exp;
+        coinVal.textContent = coins;
+        prizeVal.textContent = prizes[currQ];
+    }
+
+    function showRes() {
+        game.classList.add('hidden');
+        res.classList.remove('hidden');
+
+        const prize = prizes[gameQs.length - 1];
+        const bonusExp = 50;
+        const bonusCoins = 100;
+        
+        resTitle.textContent = '答题完成!';
+        res.classList.add('won');
+        prizeTxt.textContent = `你获得了 ${prize} 智慧金币!`;
+        expEarn.textContent = `+${bonusExp}`;
+        coinEarn.textContent = `+${bonusCoins}`;
+        exp += bonusExp;
+        coins += bonusCoins;
+        
+        updateStats();
+        
+        if (wrongs.length > 0) {
+            revItems.innerHTML = '';
+            wrongs.forEach((item, i) => {
+                const q = item.q;
+                const corAs = q.answer.map(a => `${String.fromCharCode(65 + a)}. ${q.choices[a]}`).join(', ');
+                const selAs = item.sel.map(s => `${String.fromCharCode(65 + s)}. ${q.choices[s]}`).join(', ');
+                
+                const revItem = document.createElement('div');
+                revItem.className = 'rev-item';
+                revItem.innerHTML = `
+                    <div class="rev-q">${i + 1}. ${q.question}</div>
+                    <div class="verse">${q.verse}</div>
+                    <div class="rev-w">你的答案: ${selAs || '未回答'}</div>
+                    <div class="rev-a">正确答案: ${corAs}</div>
+                `;
+                revItems.appendChild(revItem);
+            });
+            revSec.style.display = 'block';
+        } else {
+            revSec.style.display = 'none';
+        }
+    }
+
+    function start() {
+        main.classList.add('hidden');
+        game.classList.remove('hidden');
+        init();
+    }
+
+    function back() {
+        game.classList.add('hidden');
+        res.classList.add('hidden');
+        main.classList.remove('hidden');
+    }
+
+    function showRules() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+
+        modal.innerHTML = `
+            <div class="modal-cont">
+                <h3 class="modal-tit">学习指南</h3>
+                <div class="modal-txt">
+                    <p><strong>学习目标：</strong>通过问答加深对圣经真理的理解</p>
+                    <p><strong>学习流程：</strong></p>
+                    <ol>
+                        <li>回答10道随机圣经问题</li>
+                        <li>每题都有对应的经文参考</li>
+                        <li>题目可能是单选或多选</li>
+                        <li>答错会显示正确答案</li>
+                        <li>答对获得积分和金币</li>
+                    </ol>
+                    <p><strong>奖励规则：</strong></p>
+                    <ul>
+                        <li>基础问题：10积分 + 5金币</li>
+                        <li>中等难度：20积分 + 10金币</li>
+                        <li>高难度题：30积分 + 15金币</li>
+                        <li>完成全部：额外50积分 + 100金币</li>
+                    </ul>
+                </div>
+                <button class="modal-btn" id="close">我知道了</button>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        document.getElementById('close').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) document.body.removeChild(modal);
+        });
+    }
+
+    // 事件监听
+    startBtn.addEventListener('click', start);
+    rulesBtn.addEventListener('click', showRules);
+    confBtn.addEventListener('click', confirm);
+    restartBtn.addEventListener('click', () => {
+        res.classList.add('hidden');
+        game.classList.remove('hidden');
+        init();
+    });
+    backBtn.addEventListener('click', back);
+
+    // 初始化
+    getQs();
+    </script>
+</body>
+</html>
